@@ -1,29 +1,27 @@
 $('document').ready(function() {
 
-  var startingBalance = 100;
-  bankAccount = startingBalance;
+  bankAccount = 100;
   var betRange = [5,10];
   var guessRange = [1,10];
 
   var showAlert = function (id,type,text) {
 
-    var title_type;
+    var titleType = type;
+    var restartButton = '';
 
     if (type == 'danger') {
-      var title_type = 'error';
-    } else {
-      title_type = type;
+      titleType = 'error';
     }
 
-    title = id.charAt(0).toUpperCase() + id.slice(1) + " " + title_type.charAt(0).toUpperCase() + title_type.slice(1)
+    title = id.charAt(0).toUpperCase() + id.slice(1) + " " + titleType.charAt(0).toUpperCase() + titleType.slice(1);
 
-    alert_html = "<div id=\"" + id + "-alert\" class=\"alert alert-" + type + " alert-dismissible fade in\" role=\"alert\"> \
+    alertHtml = "<div id=\"" + id + "-alert\" class=\"alert alert-" + type + " alert-dismissible fade in\" role=\"alert\"> \
                 <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">×</span></button> \
                 <h4>"+ title + "</h4> \
                 <p>" + text + "</p> \
-              </div>";
+                </div>";
 
-    $(alert_html).hide().appendTo("#alert-pane").fadeIn(1500);
+    $(alertHtml).hide().appendTo("#alert-pane").fadeIn(1500);
   }
 
   var getBetInRange = function(rangeBottom,rangeTop) {
@@ -33,9 +31,9 @@ $('document').ready(function() {
     bet = $('#bet').val();
 
     if (!(bet >= rangeBottom && bet <= rangeTop)) {
-      alert_text = "The bet value is not between $" + rangeBottom + " and $" + rangeTop;
+      alertText = "The bet value is not between $" + rangeBottom + " and $" + rangeTop;
 
-      showAlert('bet', 'danger', alert_text);
+      showAlert('bet', 'danger', alertText);
 
       return false;
     }
@@ -49,9 +47,9 @@ $('document').ready(function() {
     guess = $('#guess').val();
 
     if (!(guess >= rangeBottom && guess <= rangeTop)) {
-      alert_text = "Your guess is not between " + rangeBottom + " and " + rangeTop;
+      alertText = "Your guess is not between " + rangeBottom + " and " + rangeTop;
 
-      showAlert('guess', 'danger', alert_text);
+      showAlert('guess', 'danger', alertText);
 
       return false;
     }
@@ -78,9 +76,24 @@ $('document').ready(function() {
     console.log("BALANCE : " + bankAccount);
   }
 
+  var resetGame = function() {
+
+    $(".alert #restart").fadeOut('fast');
+
+    $("#play").fadeIn('fast');
+
+    $("#balance-body").text(bankAccount);
+
+    bet_placeholder_text = "Enter a bet between $" + betRange[0] + " and $" + betRange[1];
+    $("#bet").attr("placeholder", bet_placeholder_text);
+
+    guess_placeholder_text = "Enter a number between " + guessRange[0] + " and " + guessRange[1];
+    $("#guess").attr("placeholder", guess_placeholder_text);
+  }
+
   var play = function(betRange, guessRange) {
 
-    $(".alert").fadeOut('fast');
+    $(".alert, #restart").fadeOut('fast');
 
     bet = getBetInRange(betRange[0],betRange[1]);
     guess = getGuessNumberInRange(guessRange[0],guessRange[1]);
@@ -113,19 +126,22 @@ $('document').ready(function() {
         $("#balance-body").text(bankAccount);
         showAlert('game', 'info', 'You ran out of money. Thanks for playing.');
         $("#play").fadeOut('fast');
+
+        $("#restart").css("visibility","visible");
       }
     }
   }
 
-  $("#balance-body").text(startingBalance);
-
-  bet_placeholder_text = "Enter a bet between $" + betRange[0] + " and $" + betRange[1];
-  $("#bet").attr("placeholder", bet_placeholder_text);
-
-  guess_placeholder_text = "Enter a number between " + guessRange[0] + " and " + guessRange[1];
-  $("#guess").attr("placeholder", guess_placeholder_text);
+  resetGame();
 
   $('#play').on('click', function() {
+    play(betRange, guessRange);
+  });
+
+  $('#restart').on('click', function() {
+    resetGame();
+    $("#restart").css("visibility","hidden");
+    bankAccount = 100;
     play(betRange, guessRange);
   });
 
